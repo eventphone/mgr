@@ -1,0 +1,28 @@
+﻿@page
+@model CreateModel
+
+@{
+    ViewBag.Title = "Create User";
+}
+
+<h2>Create User</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="NewUser.Username"></label>
+        <input class="form-control" asp-for="NewUser.Username">
+        <span asp-validation-for="NewUser.Username" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NewUser.Password"></label>
+        <input type="password" class="form-control" asp-for="NewUser.Password">
+        <span asp-validation-for="NewUser.Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NewUser.Password2"></label>
+        <input type="password" class="form-control" asp-for="NewUser.Password2">
+        <span asp-validation-for="NewUser.Password2" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

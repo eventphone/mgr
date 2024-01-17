@@ -1,0 +1,34 @@
+﻿@model YateUser
+<tr>
+    <td>User name</td>
+    <td>@Model.Username</td>
+</tr>
+<tr>
+    <td>Display name</td>
+    <td>@Model.DisplayName</td>
+</tr>
+<tr>
+    <td>current active calls</td>
+    <td>@Model.InUse</td>
+</tr>
+<tr>
+    <td>Type</td>
+    <td>@Model.Type</td>
+</tr>
+<tr>
+    <td>Extension type</td>
+    <td>
+        @if (Model.UserType == MgrExtensionType.DECT)
+        {
+            <a asp-page="/Omm/Users" asp-route-q="@Model.Username">@Model.UserType</a>
+        }
+        else if (Model.UserType == MgrExtensionType.GSM)
+        {
+            <a asp-page="/Gsm/Index" asp-route-q="@Model.Username">@Model.UserType</a>
+        }
+        else
+        {
+            @Model.UserType
+        }
+    </td>
+</tr>

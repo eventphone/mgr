@@ -1,0 +1,44 @@
+﻿@page "{extensionid}/{id?}/{handler?}"
+@using epmgr.Data.ywsd
+@model epmgr.Pages.Routing.ForkRank.EditModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@if (Model.Id is null)
+{
+    <h1>Add ForkRank for <a asp-page="../Index" asp-route-id="@Model.ExtensionId">@Model.ForkRank.Extension.Number</a></h1>
+}
+else
+{
+    <h1>Edit ForkRank @Model.ForkRank.Index for <a asp-page="../Index" asp-route-id="@Model.ExtensionId">@Model.ForkRank.Extension.Number</a></h1>
+}
+@if (!String.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">
+        @Model.Error
+    </div>
+}
+<form method="post">
+    <div class="form-group">
+        <label asp-for="ForkRank.Index"></label>
+        <input class="form-control" asp-for="ForkRank.Index" />
+        <span asp-validation-for="ForkRank.Index"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ForkRank.Delay"></label>
+        <input class="form-control" asp-for="ForkRank.Delay" />
+        <span asp-validation-for="ForkRank.Delay"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ForkRank.Mode"></label>
+        <select asp-for="ForkRank.Mode" class="form-control">
+            <option value="@ForkRankMode.Default">Default</option>
+            <option value="@ForkRankMode.Next">Next</option>
+            <option value="@ForkRankMode.Drop">Drop</option>
+        </select>
+        <span asp-validation-for="ForkRank.Mode"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button asp-page-handler="delete" type="submit" class="btn btn-danger">Delete</button>
+</form>

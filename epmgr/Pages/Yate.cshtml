@@ -1,0 +1,60 @@
+﻿@page
+@model YateModel
+
+@{
+    ViewBag.Title = "Users";
+}
+
+<h2>Users <a class="btn btn-primary" asp-page="/Yate/Edit" role="button">Add</a></h2>
+<form method="get">
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search" name="q" value="@Model.Query">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit"><span class="oi oi-magnifying-glass"></span></button>
+        </div>
+    </div>
+</form>
+@if (Model.Users != null)
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">User name</th>
+                <th scope="col">Display name</th>
+                <th scope="col">Extension type</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td><a asp-page="/Yate/Index" asp-route-id="@user.Username" asp-route-type="@user.UserType">@user.Username</a></td>
+                    <td>@user.DisplayName</td>
+                    <td>
+                        @if (user.UserType == MgrExtensionType.DECT)
+                        {
+                            <a asp-page="/Omm/Users" asp-route-q="@user.Username">@user.UserType</a>
+                        }
+                        else if (user.UserType == MgrExtensionType.GSM)
+                        {
+                            <a asp-page="/Gsm/Index" asp-route-q="@user.Username">@user.UserType</a>
+                        }
+                        else
+                        {
+                            @user.UserType
+                        }
+                    </td>
+                    <td>
+                        @if (user.UserType != MgrExtensionType.APP && user.UserType != MgrExtensionType.ANNOUNCEMENT)
+                        {
+                            var callModel = new Tuple<string, string>(user.Username, Model.Query);
+                            <partial model="@callModel" name="Shared/_CallButton"/>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}

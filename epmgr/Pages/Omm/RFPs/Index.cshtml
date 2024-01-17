@@ -1,0 +1,421 @@
+﻿@page "{id}/{handler?}"
+@model epmgr.Pages.Omm.RFPs.IndexModel
+@{
+    ViewData["Title"] = @Model.RFP.Name;
+}
+
+<h4>RFP - @Model.RFP.Name [@Model.RFP.EthAddr]</h4>
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="dect-tab" data-toggle="tab" href="#dect" role="tab" aria-controls="dect" aria-selected="false">DECT-Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="wlan-tab" data-toggle="tab" href="#wlan" role="tab" aria-controls="wlan" aria-selected="false">WLAN-Settings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="false">Details</a>
+    </li>
+</ul>
+<form method="post">
+<div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+        <input type="hidden" asp-for="@Model.RFP.Id" />
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">RFP-Id</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control-plaintext" readonly value="@Model.RFP.Id" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.Name" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">MAC-Address</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control-plaintext" readonly value="@Model.RFP.EthAddr" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">IP-Address</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control-plaintext" readonly value="@Model.RFP.IpAddr" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Building</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.Hierarchy1" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Floor</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.Hierarchy2" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Room</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.Hierarchy3" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Description</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.Hierarchy4" />
+            </div>
+        </div>
+        <div style="text-align:center;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="reset" class="btn btn-danger">Reset Changes</button>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="dect" role="tabpanel" aria-labelledby="dect-tab">
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-check-label ">DECT switched On</label>
+            <div class="col-sm-10">
+                <input type="checkbox" name="RFP.DectOn" class="form-check-label" value="true" checked="@Model.RFP.DectOn.GetValueOrDefault()" />
+                <input type="hidden" name="RFP.DectOn" value="false" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">DECT Cluster</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.Cluster" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Paging Area</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" asp-for="@Model.RFP.PagingArea" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-check-label ">Preferred sync source</label>
+            <div class="col-sm-10">
+                <input type="checkbox" name="RFP.PreferredSync" class="form-check-label" value="true" checked="@Model.RFP.PreferredSync.GetValueOrDefault()" />
+                <input type="hidden" name="RFP.PreferredSync" value="false" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-check-label ">Reflective Environment</label>
+            <div class="col-sm-10">
+                <input type="checkbox" name="RFP.ReflectiveEnv" class="form-check-label" value="true" checked="@Model.RFP.ReflectiveEnv.GetValueOrDefault()" />
+                <input type="hidden" name="RFP.ReflectiveEnv" value="false" />
+            </div>
+        </div>
+        <div style="text-align:center;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="reset" class="btn btn-danger">Reset Changes</button>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="wlan" role="tabpanel" aria-labelledby="wlan-tab">
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanOn)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanOn)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanProfile)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanProfile)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanAntennaDiv)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanAntennaDiv)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanAntenna)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanAntenna)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanChannel)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanChannel)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanHighThroughput)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanHighThroughput)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanPower)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanPower)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanLinkNok)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanLinkNok)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanChannelUsed)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanChannelUsed)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanHighThroughputTypeUsed)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanHighThroughputTypeUsed)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanPowerUsed)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanPowerUsed)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.LicenseRFP)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.LicenseRFP)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.Rpn)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.Rpn)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.Site)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.Site)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.X)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.X)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.Y)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.Y)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.HwType)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.HwType)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.HwTypeLocked)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.HwTypeLocked)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.ConferenceChannels)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.ConferenceChannels)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.NewSoftwareRequest)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.NewSoftwareRequest)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.DectRunning)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.DectRunning)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.WlanRunning)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.WlanRunning)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.OmmRunning)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.OmmRunning)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.OmmStbRunning)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.OmmStbRunning)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.HasWlan)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.HasWlan)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.HasEncryption)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.HasEncryption)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.HasAdvancedFeatures)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.HasAdvancedFeatures)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.SyncState)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.SyncState)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.SwVersion)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.SwVersion)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.BrandingMismatch)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.BrandingMismatch)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.VersionMismatch)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.VersionMismatch)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.StbMismatch)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.StbMismatch)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.NSyncRels)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.NSyncRels)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.RadioType)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.RadioType)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.OutdoorType)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.OutdoorType)
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RFP.HasFreqShift)
+                    </th>
+                    <td>
+                        @Html.DisplayFor(model => model.RFP.HasFreqShift)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</form>

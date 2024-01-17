@@ -1,0 +1,56 @@
+﻿@page "{id}"
+@model epmgr.Pages.Routing.ForkRankModel
+@{
+    ViewData["Title"] = "ForkRank";
+}
+
+    <h1>
+        ForkRank @Model.ForkRank.Index for
+        <a asp-page="/Routing/Index" asp-route-id="@Model.ForkRank.Extension.Id">@Model.ForkRank.Extension.Number</a>
+        <a asp-page="/Routing/ForkRank/Edit" asp-route-extensionid="@Model.ForkRank.Extension.Id" asp-route-id="@Model.ForkRank.Id" class="btn btn-primary"><span class="oi oi-pencil"></span></a>
+    </h1>
+
+<table class="table table-hover">
+    <tbody>
+        <tr>
+            <td>Index</td>
+            <td>@Model.ForkRank.Index</td>
+        </tr>
+        <tr>
+            <td>Mode</td>
+            <td>@Model.ForkRank.Mode</td>
+        </tr>
+        <tr>
+            <td>Delay</td>
+            <td>@Model.ForkRank.Delay</td>
+        </tr>
+        <tr>
+            <td>Extension</td>
+            <td><a asp-page="/Routing/Index" asp-route-id="@Model.ForkRank.Extension.Id">@Model.ForkRank.Extension.Number</a></td>
+        </tr>
+    </tbody>
+</table>
+<h2>Fork Rank Member <a asp-page="Member" asp-route-forkrankid="@Model.ForkRank.Id" class="btn btn-primary"><span class="oi oi-plus"></span></a></h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Extension</th>
+            <th scope="col">Active</th>
+            <th scope="col">Type</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var member in Model.ForkRank.ForkRankMember)
+        {
+            <tr>
+                <td><a asp-page="/Routing/Index" asp-route-id="@member.Extension.Id">@member.Extension.Number</a></td>
+                <td>@member.IsActive</td>
+                <td>@member.Type</td>
+                <td>
+                    <a asp-page="Member" asp-route-extensionid="@member.Extension.Id" asp-route-forkrankid="@Model.ForkRank.Id" class="btn btn-primary btn-sm"><span class="oi oi-pencil"></span></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

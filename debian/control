@@ -1,0 +1,12 @@
+Source: epmgr
+Section: comm
+Priority: optional
+Maintainer: The Eventphone Team <poc@eventphone.de>
+Build-Depends: debhelper-compat (= 12), dotnet-sdk-8.0
+Standards-Version: 4.1.2
+
+Package: epmgr
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, aspnetcore-runtime-8.0
+Description: eventphone management and control plane.
+ maybe we should describe the package a little more in detail

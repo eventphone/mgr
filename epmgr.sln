@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mitel-api", "mitel-api\src\mitel-api\mitel-api.csproj", "{6E55DB5D-99DE-45E2-8BD4-AA6E5295B69A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mitel-api.test", "mitel-api\src\mitel-api.test\mitel-api.test.csproj", "{A7187D26-D808-487C-8C4A-F5B214933881}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "epmgr", "epmgr\epmgr.csproj", "{538D5B73-CDA5-42AE-B028-4967ADF43AC9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "epmgr.test", "epmgr.test\epmgr.test.csproj", "{81BBB0BC-E9D8-4010-89ED-CFA4F0ED4087}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E55DB5D-99DE-45E2-8BD4-AA6E5295B69A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E55DB5D-99DE-45E2-8BD4-AA6E5295B69A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E55DB5D-99DE-45E2-8BD4-AA6E5295B69A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E55DB5D-99DE-45E2-8BD4-AA6E5295B69A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7187D26-D808-487C-8C4A-F5B214933881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7187D26-D808-487C-8C4A-F5B214933881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7187D26-D808-487C-8C4A-F5B214933881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7187D26-D808-487C-8C4A-F5B214933881}.Release|Any CPU.Build.0 = Release|Any CPU
+		{538D5B73-CDA5-42AE-B028-4967ADF43AC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538D5B73-CDA5-42AE-B028-4967ADF43AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538D5B73-CDA5-42AE-B028-4967ADF43AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538D5B73-CDA5-42AE-B028-4967ADF43AC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81BBB0BC-E9D8-4010-89ED-CFA4F0ED4087}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81BBB0BC-E9D8-4010-89ED-CFA4F0ED4087}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81BBB0BC-E9D8-4010-89ED-CFA4F0ED4087}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81BBB0BC-E9D8-4010-89ED-CFA4F0ED4087}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D81F6A2A-1A94-4206-B304-22FB69266B03}
+	EndGlobalSection
+EndGlobal

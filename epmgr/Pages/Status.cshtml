@@ -1,0 +1,63 @@
+﻿@page "{handler?}"
+@model epmgr.Pages.StatusModel
+@{
+    ViewData["Title"] = "PoC Status";
+}
+
+<h2>PoC Status</h2>
+<form method="post">
+<table class="table table-striped">
+    <tbody>
+    <tr>
+        <th scope="row">SIP</th>
+        <td>
+            <div class="btn-group" role="group">
+                <button type="submit" name="type" value="sip" asp-page-handler="down" class="btn btn-danger">Down</button>
+                <button type="submit" name="type" value="sip" asp-page-handler="unstable" class="btn btn-warning">Unstable</button>
+                <button type="submit" name="type" value="sip" asp-page-handler="up" class="btn btn-success">Up</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">DECT</th>
+        <td>
+            <div class="btn-group" role="group">
+                <button type="submit" name="type" value="dect" asp-page-handler="down" class="btn btn-danger">Down</button>
+                <button type="submit" name="type" value="dect" asp-page-handler="unstable" class="btn btn-warning">Unstable</button>
+                <button type="submit" name="type" value="dect" asp-page-handler="up" class="btn btn-success">Up</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">GSM</th>
+        <td>
+            <div class="btn-group" role="group">
+                <button type="submit" name="type" value="2g" asp-page-handler="down" class="btn btn-danger">Down</button>
+                <button type="submit" name="type" value="2g" asp-page-handler="unstable" class="btn btn-warning">Unstable</button>
+                <button type="submit" name="type" value="2g" asp-page-handler="up" class="btn btn-success">Up</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">UMTS</th>
+        <td>
+            <div class="btn-group" role="group">
+                <button type="submit" name="type" value="3g" asp-page-handler="down" class="btn btn-danger">Down</button>
+                <button type="submit" name="type" value="3g" asp-page-handler="unstable" class="btn btn-warning">Unstable</button>
+                <button type="submit" name="type" value="3g" asp-page-handler="up" class="btn btn-success">Up</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">4G</th>
+        <td>
+            <div class="btn-group" role="group">
+                <button type="submit" name="type" value="4g" asp-page-handler="down" class="btn btn-danger">Down</button>
+                <button type="submit" name="type" value="4g" asp-page-handler="unstable" class="btn btn-warning">Unstable</button>
+                <button type="submit" name="type" value="4g" asp-page-handler="up" class="btn btn-success">Up</button>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</form>

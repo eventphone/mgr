@@ -1,0 +1,167 @@
+﻿@page "{id}/{handler?}"
+@model epmgr.Pages.Omm.Devices.IndexModel
+
+@{
+    ViewBag.Title = "PPDev " + Model.Device.Ppn;
+}
+<h2>OMM Device</h2>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.Ppn)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.Ppn)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.TimeStamp)
+            </th>
+            <td>
+                @(DateTimeOffset.FromUnixTimeSeconds(Model.Device.TimeStamp.GetValueOrDefault()).ToLocalTime().ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.RelType)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.RelType)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.Uid)
+            </th>
+            <td>
+                <a asp-page="/Omm/Users/Index" asp-route-id="@Model.Device.Uid">
+                    @Html.DisplayFor(model => model.Device.Uid)
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.Ipei)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.Ipei)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.AuthenticationCode)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.AuthenticationCode)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.SubscriptionState)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.SubscriptionState)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.Uak)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.Uak)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.Encrypt)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.Encrypt)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.CapMessaging)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.CapMessaging)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.CapMessagingForInternalUse)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.CapMessagingForInternalUse)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.CapEnhLocating)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.CapEnhLocating)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.CapBluetooth)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.CapBluetooth)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.EthAddr)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.EthAddr)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.HwType)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.HwType)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.PpProfileCapability)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.PpProfileCapability)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.PpDefaultProfileLoaded)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.PpDefaultProfileLoaded)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.SubscribeToPARIOnly)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.SubscribeToPARIOnly)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Device.AutoCreate)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.Device.AutoCreate)
+            </td>
+        </tr>
+    </tbody>
+</table>
+<a asp-page="../Devices">Back to List</a>
+

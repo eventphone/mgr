@@ -1,0 +1,71 @@
+﻿@page "{type}/{id}"
+@model epmgr.Pages.Yate.IndexModel
+@{
+    ViewData["Title"] = Model.Extension.UserType;
+}
+
+<h1>@Model.Extension.UserType @Model.Extension.Username <a asp-page="Edit" asp-route-id="@Model.Id" asp-page-handler="@Model.Type" class="btn btn-primary" role ="button"><span class="oi oi-pencil"></span></a></h1>
+
+<table class="table table-hover">
+    <tbody>
+        <tr>
+            <td>Username</td>
+            <td>@Model.Extension.Username</td>
+        </tr>
+        <tr>
+            <td>DisplayName</td>
+            <td>@Model.Extension.DisplayName</td>
+        </tr>
+        <tr>
+            <td>Password</td>
+            <td>@Model.Extension.Password</td>
+        </tr>
+        <tr>
+            <td>current call count</td>
+            <td>@Model.Extension.InUse</td>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>@Model.Extension.Type</td>
+        </tr>
+        <tr>
+            <td>IsTrunk</td>
+            <td>@Model.Extension.IsTrunk</td>
+        </tr>
+        <tr>
+            <td>CallWaiting</td>
+            <td>@Model.Extension.CallWaiting</td>
+        </tr>
+        <tr>
+            <td>StaticTarget</td>
+            <td>@Model.Extension.StaticTarget</td>
+        </tr>-
+        @if (Model.Extension is DectUser dect)
+        {
+            <tr>
+                <td>DisplayMode</td>
+                <td>@dect.DisplayMode</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<h2>Registrations</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Location</th>
+            <th scope="col">ConnectionId</th>
+            <th scope="col">Expires</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var registration in Model.Registrations)
+        {
+            <tr>
+                <td>@registration.Location</td>
+                <td>@registration.OConnectionId</td>
+                <td>@registration.Expires</td>
+            </tr>
+        }
+    </tbody>
+</table>

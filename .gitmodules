@@ -1,0 +1,6 @@
+[submodule "epmgr/wwwroot/tools/ipui2ipei"]
+	path = epmgr/wwwroot/tools/ipui2ipei
+	url = https://github.com/StrongeLeeroy/ipui2ipei.git
+[submodule "mitel-api"]
+	path = mitel-api
+	url = https://github.com/eventphone/mitel-api.git

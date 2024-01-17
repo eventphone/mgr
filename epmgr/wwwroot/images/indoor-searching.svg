@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 73 118">
+  <path fill="#ffffe0" fill-rule="evenodd" stroke="#a3a3a3" stroke-miterlimit="10" d="M2 23.5c25-1 43-1 69 0 1 25 1.25 47.25.25 71.25-24 1-46.25.75-69.25-.25-1-20-1-46 0-71z"/>
+  <path fill-rule="evenodd" d="M35.42 82.75a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zm-.17-25a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zm0 8a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1zm0 9a1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1 1 1 0 0 1-1-1z"/>
+  <path fill-rule="evenodd" d="M34 58c0-1.1.9-2 2-2a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2zM34 66.27c0-1.1.9-2 2-2a2 2 0 1 1-2 2zM34 74.73a2 2 0 1 1 4 0 2 2 0 0 1-4 0zM34 83c0-1.1.9-2 2-2a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2z"/>
+</svg>

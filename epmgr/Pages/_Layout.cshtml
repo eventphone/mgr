@@ -1,0 +1,140 @@
+﻿@using epmgr.Gsm
+@using epmgr.Omm
+@using epmgr.Services
+@using Microsoft.AspNetCore.Routing
+@using Microsoft.Extensions.DependencyInjection
+@inject IServiceProvider ServiceProvider
+@{
+    if (ViewData["title"] == null)
+    {
+        ViewData["title"] = "mgr.tisch.poc";
+    }
+    var hasYStatus = ServiceProvider.GetService<YateStatusService>() != null;
+    var hasGsm = ServiceProvider.GetService<IGsmClient>() != null;
+    var hasOmm = ServiceProvider.GetService<IOmmClient>() != null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/leaflet.css">
+    <link rel="stylesheet" href="~/css/leaflet.fullscreen.css">
+    <link rel="stylesheet" href="~/css/vis-network.min.css">
+    <link rel="stylesheet" href="~/css/custom.css">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="~/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="~/favicon-16x16.png">
+    <link rel="manifest" href="~/site.webmanifest">
+    <link rel="mask-icon" href="~/safari-pinned-tab.svg" color="#fdcc12">
+    <meta name="msapplication-TileColor" content="#fdcc12">
+    <meta name="theme-color" content="#fdcc12">
+
+</head>
+<body>
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="~/"><img src="~/images/eventphone_logo_schriftzug.svg" height="35"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <ul class="navbar-nav mr-auto">
+        @if (User.Identity.IsAuthenticated)
+        {
+            <li class="nav-item dropdown@(Context.GetRouteValue("Page")?.ToString()?.StartsWith("/Status")==true || Context.GetRouteValue("Page")?.ToString()?.StartsWith("/User")==true ? " active" : "")">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    POC
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a asp-page="/Desaster" class="dropdown-item">Desaster</a>
+                    <a asp-page="/Status" class="dropdown-item">Status</a>
+                    <a asp-page="/User" class="dropdown-item">User</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown@(Context.GetRouteValue("Page")?.ToString()?.StartsWith("/Yate")==true ? " active" : "")">
+                <a class="nav-link dropdown-toggle" href="#" id="yateDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Yate
+                </a>
+                <div class="dropdown-menu" aria-labelledby="yateDropdown">
+                    <a asp-page="/Yate" class="dropdown-item">Users</a>
+                    @if (hasYStatus)
+                    {
+                        <a asp-page="/Yate/Status" class="dropdown-item">Status</a>
+                    }
+                </div>
+            </li>
+            <li class="nav-item dropdown@(Context.GetRouteValue("Page")?.ToString()?.StartsWith("/Routing")==true ? " active" : "")">
+                <a class="nav-link dropdown-toggle" href="#" id="routingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Routing
+                </a>
+                <div class="dropdown-menu" aria-labelledby="routingDropdown">
+                    <a asp-page="/Routing" class="dropdown-item">Extensions</a>
+                    <a asp-page="/Routing/Tree" class="dropdown-item">Tree</a>
+                </div>
+            </li>
+            @if (hasOmm)
+            {
+                <li class="nav-item dropdown@(Context.GetRouteValue("Page")?.ToString()?.StartsWith("/Omm") == true ? " active" : "")">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        DECT
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a asp-page="/Omm/DECTStatus" class="dropdown-item">DECT-Status</a>
+                        <a asp-page="/Omm/Users" class="dropdown-item">User Profiles</a>
+                        <a asp-page="/Omm/Devices" class="dropdown-item">Devices</a>
+                        <a asp-page="/Omm/RFPCapture" class="dropdown-item">RFP Capture</a>
+                        <a asp-page="/Omm/RFPs" class="dropdown-item">RFPs</a>
+                        <a asp-page="/Omm/Map" class="dropdown-item">SyncState</a>
+                    </div>
+                </li>
+            }
+            @if (hasGsm)
+            {
+                <li class="nav-item dropdown@(Context.GetRouteValue("Page")?.ToString()?.StartsWith("/Gsm")==true ? " active" : "")">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        GSM
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a asp-page="/Gsm/Index" class="dropdown-item">Subscriptions</a>
+                    </div>
+                </li>
+            }
+            <li class="nav-item"><a class="nav-link" href="/jobs">Jobs</a></li>
+            <nav-link asp-page="/Admin/Logout" class="nav-item">Logout</nav-link>
+        }
+        else
+        {
+            <nav-link asp-page="/Admin/Login" class="nav-item">Login</nav-link>
+        }
+                <li class="nav-item">
+                    <a class="nav-link" href="~/tools/Eventphone.crt">Download eventphone CA</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="No Search">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">Nope</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    @RenderBody()
+</div>
+
+<!-- JAVASCRIPT -->
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script src="~/js/jquery.validate.min.js"></script>
+<script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/js/bootstrap.min.js"></script>
+@if (IsSectionDefined("script"))
+{
+    @RenderSection("script")
+}
+</body>
+</html>

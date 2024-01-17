@@ -1,0 +1,121 @@
+﻿@page "{handler?}/{id?}"
+@model epmgr.Pages.Yate.EditModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@if (Model.Id is null)
+{
+    <h1>Add Extension</h1>
+}
+else
+{
+    <h1>Edit @Model.Extension.UserType @Model.Extension.Username</h1>
+}
+<style type="text/css">
+    button.js-type-submit {
+        display: none;
+    }
+    @foreach (var value in Enum.GetValues(typeof(MgrExtensionType)).OfType<MgrExtensionType>())
+    {
+        <text>
+    div[data-chosen="@value"] ~ button.js-type-submit-@value {
+        display: initial;
+    }
+        </text>
+    }
+</style>
+@if (!String.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">
+        @Model.Error
+    </div>
+}
+<form method="post">
+    @if (Model.Id is null)
+    {
+        <div class="form-group" data-chosen="none">
+            <label for="AddUserType">Type</label>
+            <select Id="AddUserType" class="form-control" onchange="this.parentNode.dataset.chosen = this.value;">
+                <option value="">None</option>
+                <option value="@MgrExtensionType.ANNOUNCEMENT">ANNOUNCEMENT</option>
+                <option value="@MgrExtensionType.APP">APP</option>
+                <option value="@MgrExtensionType.DECT">DECT</option>
+                <option value="@MgrExtensionType.GSM">GSM</option>
+                <option value="@MgrExtensionType.PREMIUM">PREMIUM</option>
+                <option value="@MgrExtensionType.SIP">SIP</option>
+            </select>
+            <span asp-validation-for="DisplayMode"></span>
+        </div>
+    }
+    <div class="form-group">
+        <label asp-for="Extension.Username"></label>
+        @if (Model.Id is null)
+        {
+            <input class="form-control" asp-for="Extension.Username" />
+        }
+        else
+        {
+            <input class="form-control" asp-for="Extension.Username" readonly="readonly" />
+        }
+        <span asp-validation-for="Extension.Username"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.DisplayName"></label>
+        <input class="form-control" asp-for="Extension.DisplayName" />
+        <span asp-validation-for="Extension.DisplayName"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.Password"></label>
+        <input class="form-control" asp-for="Extension.Password" />
+        <span asp-validation-for="Extension.Password"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.InUse"></label>
+        <input class="form-control" asp-for="Extension.InUse" />
+        <span asp-validation-for="Extension.InUse"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.Type"></label>
+        <input class="form-control" asp-for="Extension.Type" />
+        <span asp-validation-for="Extension.Type"></span>
+    </div>
+    <div class="form-group form-check">
+        <input class="form-check-input" type="checkbox" asp-for="Extension.IsTrunk">
+        <label class="form-check-label" asp-for="Extension.IsTrunk"></label>
+    </div>
+    <div class="form-group form-check">
+        <input class="form-check-input" type="checkbox" asp-for="Extension.CallWaiting">
+        <label class="form-check-label" asp-for="Extension.CallWaiting"></label>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.StaticTarget"></label>
+        <input class="form-control" asp-for="Extension.StaticTarget" />
+        <span asp-validation-for="Extension.StaticTarget"></span>
+    </div>
+    @if (Model.Extension is DectUser dect)
+    {
+        <div class="form-group">
+            <label asp-for="DisplayMode"></label>
+            <select asp-for="DisplayMode" class="form-control">
+                <option value="@DectDisplayModus.NumName">Number + Name</option>
+                <option value="@DectDisplayModus.Num">Number</option>
+                <option value="@DectDisplayModus.Name">Name</option>
+            </select>
+            <span asp-validation-for="DisplayMode"></span>
+        </div>
+    }
+    @if (Model.Id is null)
+    {
+        @foreach (var value in Enum.GetValues(typeof(MgrExtensionType)).OfType<MgrExtensionType>())
+        {
+            <button asp-page-handler="@value" type="submit" class="btn btn-primary js-type-submit js-type-submit-@value">Submit</button>
+        }
+    }
+    else
+    {
+        <button asp-page-handler="@Model.Extension.UserType" type="submit" class="btn btn-primary">Submit</button>
+        <button asp-page-handler="delete" asp-route-type="@Model.Extension.UserType" asp-route-id="@Model.Id" type="submit" class="btn btn-danger">Delete</button>
+    }
+</form>
+

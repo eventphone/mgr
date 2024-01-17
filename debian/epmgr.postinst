@@ -1,0 +1,22 @@
+#!/bin/sh 
+
+set -e
+
+case "$1" in
+    configure)
+	if ! getent passwd mgr > /dev/null ; then
+	    adduser --system --home /opt/epmgr \
+		--gecos "eventphone mgr" --shell /usr/sbin/nologin \
+		--disabled-password mgr
+	fi
+	;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+
+    *)
+	echo "postinst called with unknown argument \`$1'" >&2
+	exit 0
+esac
+
+#DEBHELPER#

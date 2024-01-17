@@ -1,0 +1,164 @@
+﻿@page
+@model epmgr.Pages.Omm.RFPsModel
+
+@{
+    ViewBag.Title = "OMM RFPs";
+}
+
+<h2>OMM RFPs</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            @foreach (var header in Model.TableHeaders)
+            {
+                var iconClass = "";
+                if (header.SortOrder != null) {
+                    if (header.SortOrder.Equals(OrderDirection.Ascending)) {
+                        iconClass = "oi-sort-ascending";
+                    }
+                    if (header.SortOrder.Equals(OrderDirection.Descending)) {
+                        iconClass = "oi-sort-descending";
+                    }
+                    var url = $"{Request.Path}?{header.QuerysString()}";
+                    <th scope="col">
+                        <a href="@url">
+                            @header.Label <span class="oi @iconClass"></span>
+                        </a>
+                    </th>
+                } else {
+                    <th scope="col">@header.Label</th>
+                }              
+            }
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rfp in Model.RFPs)
+        {
+            <tr>
+                <td>@rfp.Id</td>
+                <td>
+                    @if (rfp.Connected.GetValueOrDefault())
+                    {
+                        <span class="oi oi-pulse" title="Connected"></span>
+                    }
+                    else
+                    {
+                        <span class="oi oi-ellipses" title="Disconnected"></span>
+                    }
+                    @rfp.Name
+                </td>
+                <td>@rfp.EthAddr</td>
+                <td>@if (@rfp.IpAddr != "0.0.0.0")
+                {@rfp.IpAddr}</td>
+                <td>
+                    @if (rfp.DectOn.GetValueOrDefault())
+                    {
+                        <span class="oi oi-cog" title="Configured"></span>
+                    }
+                    else
+                    {
+                        <span class="oi oi-circle-x" title="Unconfigured"></span>
+                    }
+                &nbsp;
+                @if (rfp.SyncState == mitelapi.Types.RFPSyncStateType.Synced)
+                {
+                    <span class="oi oi-circle-check" title="Active, Synced to [@rfp.NSyncRels]"></span>
+                }
+                else if (rfp.SyncState == mitelapi.Types.RFPSyncStateType.Searching)
+                {
+                    <span class="oi oi-magnifying-glass" title="Active, Searching for Sync"></span>
+                }
+                else if (rfp.SyncState == mitelapi.Types.RFPSyncStateType.NotSynced)
+                {
+                    <span class="oi oi-ban" title="Active, Not Synced"></span>
+                }
+                else if (rfp.SyncState == mitelapi.Types.RFPSyncStateType.Inactive)
+                {
+                    <span class="oi oi-x" title="Inactive"></span>
+                }
+            </td>
+
+            <td>@rfp.Cluster</td>
+            <td>
+                @if (rfp.ReflectiveEnv.GetValueOrDefault())
+                {
+                    <span class="oi oi-check" title="Reflective"></span>
+                }
+                else
+                {
+                    <span class="oi oi-x" title="Not Reflective"></span>
+                }
+            </td>
+            <td>@rfp.HwType</td>
+            <td>
+                <div class="btn-group">
+                    <a asp-page="RFPs/Index" asp-route-id="@rfp.Id" class="btn btn-info btn-group" role="button">Details</a>&nbsp;
+
+                    <button type="button" class="btn btn-danger btn-group" data-toggle="modal" data-target="#deleteModal_@rfp.Id">Delete</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal_@rfp.Id" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Caution - Deletion could be fatal</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Deleting an RFP could possibly do the following:
+                                    <ul>
+                                        <li>cause other RFPs sync loss</li>
+                                        <li>disrupt running calls</li>
+                                        <li>drop infos like Name, Location</li>
+                                        <li>will delete the RFP</li>
+                                    </ul>
+                                    <b>You should know what you are doing when deleting an RFP!</b>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                    <form asp-page="RFPs/Index" asp-page-handler="Delete" asp-route-id="@rfp.Id">
+                                        <button type="submit" class="btn btn-danger" role="button">Delete anyways</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-warning btn-group" data-toggle="modal" data-target="#reenrollModal_@rfp.Id">Re-enroll</button>
+
+                    <div class="modal fade" id="reenrollModal_@rfp.Id" tabindex="-1" role="dialog" aria-labelledby="ReenrollModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ReenrollModalLabel">Caution - Re-Enrollment could be fatal</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Re-enrolling an RFP could possibly do the following:
+                                    <ul>
+                                        <li>cause other RFPs sync loss</li>
+                                        <li>disrupt running calls</li>
+                                        <li>drop infos like Name, Location</li>
+                                        <li>will create new keys for the RFP</li>
+                                    </ul>
+                                    <b>You should know what you are doing when re-enrolling an RFP!</b>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                    <form asp-page="RFPs/Index" asp-page-handler="Reenroll" asp-route-id="@rfp.Id">
+                                        <button type="submit" class="btn btn-danger" role="button">Re-enroll anyways</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

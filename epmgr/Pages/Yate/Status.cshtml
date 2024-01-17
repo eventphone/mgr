@@ -1,0 +1,217 @@
+@page
+@model epmgr.Pages.Yate.StatusModel
+@{
+    ViewData["Title"] = "Yate Status";
+}
+
+@section script
+{
+    <script src="~/js/signalr.js"></script>
+    <script type="text/javascript">
+        var alarmArea = document.getElementById('alertArea');
+        var channelArea = document.getElementById('channels');
+        var emptynotice = document.getElementById('emptynotice');
+        var hostArea = document.getElementById('hostArea');
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl('/ystatus')
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        connection.on("Update",
+            (message) => {
+                addHostCheckbox(message.host);
+                var key = GetKey(message.id, message.host);
+                var elem = document.getElementById(key);
+                var added = false;
+                if (elem === null) {
+                    elem = document.createElement('tr');
+                    elem.id = key;
+                    added = true;
+                } else {
+                    while (elem.firstChild) {
+                        elem.removeChild(elem.firstChild);
+                    }
+                }
+                elem.appendChild(CreateColumn(message.id));
+                var icon = document.createElement('span');
+                icon.setAttribute('class', 'oi oi-' + message.direction);
+                var direction = document.createElement('td');
+                direction.appendChild(icon);
+                elem.appendChild(direction);
+                elem.appendChild(CreateColumn(message.caller));
+                elem.appendChild(CreateColumn(message.called));
+                elem.appendChild(CreateColumn(message.address));
+                elem.appendChild(CreateColumn(message.status));
+                elem.appendChild(CreateColumn(message.host));
+                elem.setAttribute('data-host', 'host-' + message.host);
+                var searchvalue = message.caller + ' ' + message.called;
+                if (message.address !== null) {
+                    searchvalue = searchvalue + ' ' + message.address.toLowerCase();
+                }
+                if (message.status !== null) {
+                    searchvalue = searchvalue + ' ' + message.status.toLowerCase();
+                }
+                elem.setAttribute('data-search', searchvalue);
+                if (message.color)
+                    elem.setAttribute('class', 'table-' + message.color);
+                else
+                    elem.removeAttribute('class');
+                if (added)
+                    channelArea.appendChild(elem);
+            });
+
+        function CreateColumn(value) {
+            var col = document.createElement('td');
+            col.innerText = value;
+            return col;
+        }
+
+        connection.on("Alarm",
+            (message) => {
+                addHostCheckbox(message.host);
+                var key = GetKey(message.id, message.host);
+                var elem = document.getElementById(key);
+                if (elem === null) {
+                    elem = document.createElement('div');
+                    elem.id = key;
+                }
+                elem.setAttribute('class', 'alert alert-' + message.level);
+                elem.setAttribute('role', 'alert');
+                elem.setAttribute('data-host', 'host-' + message.host);
+                elem.setAttribute('data-search', message.message);
+                elem.innerText = message.host + ': ' + message.message;
+                alarmArea.appendChild(elem);
+            });
+
+        connection.on("Delete",
+            (id, host) => {
+                var key = GetKey(id, host);
+                var elem = document.getElementById(key);
+                if (elem === null) return;
+                elem.parentNode.removeChild(elem);
+            });
+
+        function reconnect() {
+            emptynotice.classList.replace("table-info", "table-danger");
+            while (alarmArea.firstChild) {
+                alarmArea.removeChild(alarmArea.firstChild);
+            }
+            while (channelArea.lastChild && channelArea.lastChild.id !== "emptynotice") {
+                channelArea.removeChild(channelArea.lastChild);
+            }
+            connection.start()
+                .then(onConnected)
+                .catch(err => {
+                    console.error(err.toString());
+                    setTimeout(() => reconnect(), 5000);
+                });
+        }
+
+        function onConnected() {
+            emptynotice.classList.replace("table-danger", "table-info");
+            connection.invoke("GetAll");
+        }
+
+        connection.onclose(e => {
+            console.log(e);
+            reconnect();
+        });
+
+        reconnect();
+
+        function GetKey(id, host) {
+            return host + ':' + id;
+        }
+
+        function addHostCheckbox(host) {
+            var id = 'host-' + host;
+            var elem = document.getElementById(id);
+            if (elem !== null) return;
+            elem = document.createElement('button');
+            elem.innerText = host;
+            elem.setAttribute('type', 'button');
+            elem.id = id;
+            elem.classList.add('btn', 'btn-secondary');
+            elem.onclick = hostButtonClick;
+            hostArea.appendChild(elem);
+        }
+
+        function hostButtonClick(event) {
+            event = event || window.event;
+            var target = event.target || event.srcElement;
+            if (target.nodeType == 3) target = target.parentNode;
+            if (target.classList.toggle('btn-outline-secondary')) {
+                //disabled
+                var css = document.createElement('style');
+                css.innerHTML = '[data-host="' + target.id + '"] {display: none;}';
+                target.appendChild(css);
+            } else {
+                //enabled
+                target.removeChild(target.lastChild);
+            }
+        }
+
+        function search(event) {
+            var value = document.getElementById('search').value;
+            var filter = document.getElementById('searchfilter');
+            if (value == '') {
+                filter.innerHTML = '';
+            } else {
+                if (value.startsWith('!')) {
+                    filter.innerHTML = '#channels > [data-search *= "' + value.substring(1) + '"]{ display:none; }';
+                    filter.innerHTML += '#alertArea > [data-search *= "' + value.substring(1) + '"]{ display:none; }';
+                } else {
+                    filter.innerHTML = '#channels > :not([data-search *= "' + value + '"]){ display:none; }';
+                    filter.innerHTML += '#alertArea > :not([data-search *= "' + value + '"]){ display:none; }';
+                }
+            }
+        }
+
+        var searchInput = document.getElementById('search');
+        searchInput.addEventListener('input', search);
+        searchInput.addEventListener('propertychange', search);
+    </script>
+}
+
+<style type="text/css">
+    #emptynotice {
+        display: none;
+    }
+    #emptynotice:only-child {
+        display: table-row;
+    }
+    #hostArea button {
+        margin: 0.3rem;
+    }
+    #hostArea input {
+        margin: 0.3rem;
+    }
+</style>
+<h2>Yate Status</h2>
+<div class="row" id="hostArea">
+    <form style="margin-right: 1em;">
+        <input id="search" type="text" class="form-control" placeholder="Search"/>
+        <style id="searchfilter"></style>
+    </form>
+</div>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Direction</th>
+            <th scope="col">Caller</th>
+            <th scope="col">Called</th>
+            <th scope="col">Address</th>
+            <th scope="col">Status</th>
+            <th scope="col">Host</th>
+        </tr>
+    </thead>
+    <tbody id="channels">
+        <tr class="table-info" id="emptynotice">
+            <th scope="row"></th>
+            <td colspan="6">no channel active</td>
+        </tr>
+    </tbody>
+</table>
+<div id="alertArea"></div>
+

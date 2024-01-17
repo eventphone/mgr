@@ -1,0 +1,24 @@
+﻿@page "{id}"
+@model epmgr.Pages.Desaster.IndexModel
+@{
+    ViewData["Title"] = "Desaster Call";
+}
+
+<h1>@Model.Desaster.Name <a asp-page="Edit" asp-route-id="@Model.Id" class="btn btn-primary" role="button"><span class="oi oi-pencil"></span></a></h1>
+
+<table class="table table-hover">
+    <tbody>
+        <tr>
+            <td>Pin</td>
+            <td>@Model.Desaster.Pin</td>
+        </tr>
+        <tr>
+            <td>Announcement</td>
+            <td>@Model.Desaster.Announcement</td>
+        </tr>
+        <tr>
+            <td>Target</td>
+            <td>@Model.Desaster.Target</td>
+        </tr>
+    </tbody>
+</table>

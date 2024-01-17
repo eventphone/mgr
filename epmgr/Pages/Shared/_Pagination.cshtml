@@ -1,0 +1,27 @@
+﻿@model Model.ListModelBase
+
+<div class="row">
+    <div class="col-md-12">
+        <nav>
+            <ul class="pagination">
+            @if (Model.CurrentPage != 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-all-route-data="@Model.Parameters" asp-route-p="@(Model.CurrentPage - 1)">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            }
+                <li class="page-item"><a class="page-link">Page @Model.CurrentPage / @Model.PageCount</a></li>
+            @if (!Model.LastPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-all-route-data="@Model.Parameters" asp-route-p="@(Model.CurrentPage + 1)">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            }
+            </ul>
+        </nav>
+    </div>
+</div>

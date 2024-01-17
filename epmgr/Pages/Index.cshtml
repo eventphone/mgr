@@ -1,0 +1,134 @@
+﻿@page
+@model IndexModel
+@section script {
+    <script src="~/tools/ipui2ipei/js/ipui2ipei.js"></script>
+}
+
+<div class="page-header" style="padding-bottom: 2em">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 id="shortcuts">PoC Launchpad</h1>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <div class="bs-component">
+            <h5>Admin Sites</h5>
+            <ul>
+                <li><a target="_blank" href="https://esxi.tisch.poc/">esxi.tisch.poc</a></li>
+                <li><a target="_blank" href="https://pfsense.tisch.poc/">pfsense.tisch.poc</a></li>
+                <li><a target="_blank" href="https://firewall-dect.voip.poc/">firewall-dect.voip.poc</a></li>
+                <li><a target="_blank" href="https://omm.voip.poc/">omm.voip.poc</a></li>
+                <li><a target="_blank" href="https://passbolt.tisch.poc/">passbolt.tisch.poc</a></li>
+            </ul>
+            <h5>Monitoring</h5>
+            @{
+                var yatemonuser = "yatemon";
+                var yatemon_hosts = new[]
+                {
+                        "yate-sip.voip.poc",
+                        "yate-dect.voip.poc",
+                        "yate-app.voip.poc",
+                        "yate-premium.voip.poc",
+                    };
+            }
+            <ul>
+                <li><a target="_blank" href="https://dashboard.tisch.poc/">dashboard.tisch.poc</a></li>
+                @foreach (var yatemon_host in yatemon_hosts)
+                {
+                    <li><a target="_blank" href="ssh://@yatemonuser@@@yatemon_host">YateMonitor: @yatemon_host</a></li>
+                }
+            </ul>
+
+            <h5>DECT / OMM Tools</h5>
+            <ul>
+                <li><a target="_blank" href="tools/OMP.jnlp">OMP (WebStart)</a></li>
+                <li><a target="_blank" href="tools/OMC.jnlp">OM Configurator (WebStart)</a></li>
+                <br />
+                <li><a target="_blank" href="tools/OMP.jar">OMP (Download)</a></li>
+                <li><a target="_blank" href="tools/OM_Configurator.jar">OM Configurator (Download)</a></li>
+            </ul>
+        </div>
+    </div>
+    @{
+        var user = "root";
+        var ssh_hosts = new[]
+        {
+        "esxi.tisch.poc",
+        "mgr.tisch.poc",
+        "dashboard.tisch.poc",
+        "backup.tisch.poc",
+        "yate-sip.voip.poc",
+        "yate-dect.voip.poc",
+        "yate-app.voip.poc",
+        "yate-premium.voip.poc",
+        "lcr.voip.poc",
+        "asterisk-app.voip.poc",
+        "omm.voip.poc",
+        "firewall-dect.voip.poc",
+    };
+    }
+    <div class="col-lg-4">
+        <div class="bs-component">
+            <h5>Admin Hosts</h5>
+            <ul>
+                @foreach (var host in ssh_hosts)
+                {
+                    <li><a target="_blank" href="ssh://@user@@@host">SSH: @host</a></li>
+                }
+            </ul>
+            <h5>Social Media</h5>
+            <ul>
+                <li><a target="_blank" href="https://eventphone.de/blog/">Blog Live System</a></li>
+                <li><a target="_blank" href="https://twitter.com/eventphone">Twitter</a></li>
+                <li><a target="_blank" href="https://www.youtube.com/channel/UC8OVRoTzXK7CsmzFge3SOjQ">YouTube</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="bs-component">
+            <fieldset>
+                <h5>Convert IPUI to IPEI</h5>
+                <form role="form" class="form-horizontal">
+                    <div id="ipui-group" class="form-group">
+                        <label for="ipui" class="col-xs-2 control-label">IPUI:</label>
+                        <div class="col-xs-8">
+                            <input type="text" class="form-control" id="ipui" name="ipui" maxlength="10">
+                            <span id="ipuiVal" class=""></span>
+                        </div>
+                        <div class="col-xs-2">
+                            <input class="btn btn-success" type="button" onclick="calculate()" value="Convert">
+                        </div>
+                    </div>
+                    <div id="ipei-group" class="form-group">
+                        <label for="ipei" class="col-xs-2 control-label">IPEI:</label>
+                        <div class="col-xs-8">
+                            <input type="text" class="form-control" id="ipei" name="ipei" maxlength="13" readonly>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-2">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="verbose"> Verbose
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2 col-xs-offset-2">
+                            <input class="btn btn-info" type="button" onclick="location.reload()" value="Reset">
+                        </div>
+                    </div>
+                    <pre id="verboseBox" class="hidden">
+                    <samp id="verboseContent"></samp>
+                    <samp id="verboseContentChecksum"></samp>
+                    <samp id="verboseContentFinal"></samp>
+						</pre>
+                </form>
+            </fieldset>
+        </div>
+    </div>
+
+</div> <!-- row -->

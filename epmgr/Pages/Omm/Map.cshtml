@@ -1,0 +1,563 @@
+﻿@page "{handler?}"
+@using System.Globalization
+@using epmgr.Hubs
+@using mitelapi.Types
+@using Newtonsoft.Json
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@model epmgr.Pages.Omm.MapModel
+@functions{
+    public string GetAntiForgeryToken()
+    {
+        return Antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+    }
+}
+@{
+    ViewBag.Title = "RFP Sync";
+}
+
+@section script
+{
+    <script type="text/javascript" src="~/js/web-animations.min.js"></script>
+    <script type="text/javascript" src="~/js/leaflet.js"></script>
+    <script type="text/javascript" src="~/js/leaflet.curve.js"></script>
+    <script type="text/javascript" src="~/js/Leaflet.fullscreen.min.js"></script>
+    <script src="~/js/signalr.min.js"></script>
+    <script type="text/javascript">
+        var rfps = @Html.Raw(JsonConvert.SerializeObject(Model.Rfps));
+        var syncs = @Html.Raw(JsonConvert.SerializeObject(Model.RfpSync));
+        var levels = @Html.Raw(JsonConvert.SerializeObject(Model.Levels));
+        var map = L.map('syncmap',
+                {
+                    fullscreenControl: true,
+                    maxZoom: @Model.Tiles.Select(x=>x.MaxZoom).Concat(Model.Levels.Select(x=>x.MaxZoom)).Max()
+                    @if (Model.SimpleCRS)
+                    {
+                        <text>
+                        ,crs: L.CRS.Simple
+                        </text>
+                    }
+                })
+            .fitBounds(L.latLngBounds(L.latLng(@Model.South.ToString(CultureInfo.InvariantCulture),
+                    @Model.West.ToString(CultureInfo.InvariantCulture)),
+                L.latLng(@Model.North.ToString(CultureInfo.InvariantCulture),
+                    @Model.East.ToString(CultureInfo.InvariantCulture))))
+            .on('baselayerchange', layerChanged);
+        map.attributionControl
+            .addAttribution('Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>');
+        @foreach (var tile in Model.Tiles)
+        {
+            <text>
+                L.tileLayer('@tile.Url',
+                    {
+                        minZoom: @tile.MinZoom,
+                        maxZoom: @tile.MaxZoom,
+                        bounds: @JsonConvert.SerializeObject(tile.Bounds)
+                    }).addTo(map);
+            </text>
+        }
+
+        var unpositioned = L.layerGroup();
+        var markers = [];
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl('/map')
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        var trash = L.marker([
+                @Model.North.ToString(CultureInfo.InvariantCulture),
+                @Model.West.ToString(CultureInfo.InvariantCulture)
+            ],
+            {
+                icon: L.divIcon({
+                    html: '<span class="oi oi-trash"></span>',
+                    iconSize: [30, 30],
+                    className: 'trash-icon',
+                    iconAnchor: [30, 30]
+                })
+            }).addTo(map);
+        var currentLevel = null;
+        init();
+
+        function init() {
+            unpositioned.on('add', distributeRfps);
+            var baseLayers = {};
+            for (var i = 0; i < levels.length; i++) {
+                var level = levels[i];
+                level.layer = L.layerGroup();
+                level.layer.on('add', toggleDrag);
+                baseLayers[`<span id="layer-${i}">${level.Name}</span>`] = level.layer;
+                if (level.TilesUrl) {
+                    L.tileLayer(level.TilesUrl,
+                        { minZoom: level.MinZoom, maxZoom: level.MaxZoom, bounds: level.Bounds }).addTo(level.layer);
+                }
+            }
+            if (levels.length == 0) {
+                var level = {
+                    layer: L.layerGroup(),
+                    MinZoom: 0,
+                    MaxZoom: 18,
+                    Bounds: []
+                };
+                levels.push(level);
+                baseLayers['<span class="oi oi-map-marker"></span>'] = level.layer;
+                level.layer.on('add', toggleDrag);
+            }
+
+            levels[0].layer.addTo(map);
+            currentLevel = levels[0].Name;
+            $('#allow-drag').change(toggleDrag);
+            $('#show-names').change(toggleNames);
+            $('#signal').on('input', filterSync);
+            for (var i = 0; i < rfps.length; i++) {
+                var rfp = rfps[i];
+                var popup = L.popup().setContent(document.getElementById('rfp-popup'));
+                var marker = L.marker([rfp.Latitude, rfp.Longitude], { icon: getIcon(rfp) })
+                    .bindTooltip(rfp.Name, { direction: 'bottom', offset: [0, 24] })
+                    .bindPopup(popup)
+                    .on('popupopen', rfpPopupOpen);
+                if (!rfp.IsPositioned) {
+                    rfp.Level = '@Guid.NewGuid()';
+                    marker.once('dragstart', positionRfp);
+                    marker.setZIndexOffset(rfps.length);
+                    marker.addTo(unpositioned);
+                } else {
+                    var level = getLevel(rfp.Level);
+                    marker.addTo(level.layer);
+                }
+                marker.on('dragend', updatePosition);
+                marker.on('drag', dragHandler);
+                marker.on('move', dragHandler);
+                marker.rfp = rfp;
+                markers.push(marker);
+            }
+            L.control.layers(baseLayers,
+                { '<span class="oi oi-grid-three-up"></span>': unpositioned },
+                { collapsed: false }).addTo(map);
+
+            for (var i = 0; i < syncs.length; i++) {
+                addSyncLine(syncs[i]);
+            }
+            connection.on('@nameof(MapHub.UpdatePosition)', updateRfpPosition);
+            connection.on('@nameof(MapHub.UpdateState)', updateRfpState);
+            connection.on('@nameof(MapHub.UpdateSyncs)', updateSyncs);
+            connection.start();
+            connection.onclose(() => {
+                setTimeout(function() {
+                        connection.start();
+                    },
+                    5000);
+            });
+        }
+
+        function addSyncLine(sync) {
+            var from = getRfp(sync.From);
+            var to = getRfp(sync.To);
+            var start = [from.Latitude, from.Longitude];
+            var end = [to.Latitude, to.Longitude];
+            var control = getControlPoint(start, end);
+            var popup = L.popup().setContent(document.getElementById('sync-popup'));
+            var dashed = null;
+            var level = getLevel(from.Level);
+            if (from.Level != to.Level) {
+                dashed = '10';
+            }
+            var line = L.curve([
+                        'M', start,
+                        'Q', control,
+                        end
+                    ],
+                    {
+                        color: getRssiColor(sync.Rssi),
+                        stroke: sync.Rssi > -70 && to.IsPositioned && from.IsPositioned,
+                        dashArray: dashed
+                    })
+                .bindTooltip(`${from.Name} &raquo; ${to.Name}`, { sticky: true })
+                .bindPopup(popup)
+                .on('popupopen', syncPopupOpen)
+                .addTo(level.layer);
+            line.sync = sync;
+            sync.line = line;
+        }
+
+        function getIcon(rfp) {
+            return L.divIcon({
+                className: `${rfp.IsOutdoor ? 'out' : 'in'}door ${rfp.State.toLowerCase()}`,
+                iconSize: [30, 48]
+            });
+        }
+
+        function getLevel(name) {
+            for (var i = 0; i < levels.length; i++) {
+                if (levels[i].Name == name)
+                    return levels[i];
+            }
+            return levels[0];
+        }
+
+        function getRfp(id) {
+            for (var i = 0; i < rfps.length; i++) {
+                if (rfps[i].Id === id)
+                    return rfps[i];
+            }
+        }
+
+        function getSync(from, to) {
+            for (var i = 0; i < syncs.length; i++) {
+                if (syncs[i].From == from && syncs[i].To == to)
+                    return syncs[i];
+            }
+        }
+
+        function getSyncs(rfpId) {
+            var result = [];
+            for (var i = 0; i < syncs.length; i++) {
+                if (syncs[i].From == rfpId || syncs[i].To == rfpId)
+                    result.push(syncs[i]);
+            }
+            return result;
+        }
+
+        function getMarker(id) {
+            for (var i = 0; i < markers.length; i++) {
+                if (markers[i].rfp.Id === id)
+                    return markers[i];
+            }
+        }
+
+        function getControlPoint(from, to) {
+            //https://gist.github.com/ryancatalani/6091e50bf756088bf9bf5de2017b32e6
+            var offsetX = to[1] - from[1],
+                offsetY = to[0] - from[0];
+
+            var r = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2)),
+                theta = Math.atan2(offsetY, offsetX);
+
+            var thetaOffset = -(3.14 / 20);
+
+            var r2 = (r / 2) / (Math.cos(thetaOffset)),
+                theta2 = theta + thetaOffset;
+
+            var midpointX = (r2 * Math.cos(theta2)) + from[1],
+                midpointY = (r2 * Math.sin(theta2)) + from[0];
+
+            return [midpointY, midpointX];
+        }
+
+        function getRssiColor(rssi) {
+            if (rssi < -90)
+                return 'red';
+            if (rssi > -70)
+                return 'rgb(0, 255, 0)';
+            if (rssi < -80) {
+                var g = (90 + rssi) * 25;
+                return `rgb(255, ${g}, 0)`;
+            } else {
+                var r = (80 + rssi) * 25;
+                return `rgb(${r}, 255, 0)`;
+            }
+        }
+
+        function distributeRfps() {
+            var view = map.getBounds().pad(-0.1);
+            var rfps = unpositioned.getLayers();
+            var east = view.getEast();
+            var north = view.getNorth();
+            var south = view.getSouth();
+            var west = view.getWest();
+
+            var cols = Math.ceil(Math.sqrt(rfps.length));
+            var rows = Math.ceil(rfps.length / cols);
+            var colStep = (west - east) / cols;
+            var rowStep = (north - south) / rows;
+            var i = 0;
+            for (var lat = north - rowStep / 2; lat > south; lat -= rowStep) {
+                if (i >= rfps.length)
+                    break;
+                for (var lng = west - colStep / 2; lng < east; lng -= colStep) {
+                    if (i >= rfps.length)
+                        break;
+                    rfps[i].setLatLng([lat, lng]);
+                    i++;
+                }
+            }
+
+            toggleDrag();
+        }
+
+        function toggleDrag() {
+            var enable = document.getElementById('allow-drag').checked;
+            for (var i = 0; i < markers.length; i++) {
+                if (markers[i].dragging === undefined)
+                    continue;
+                if (enable) {
+                    markers[i].dragging.enable();
+                } else {
+                    markers[i].dragging.disable();
+                }
+            }
+            if (enable)
+                trash.addTo(map);
+            else
+                trash.removeFrom(map);
+        }
+
+        function dragHandler(e) {
+            var rfp = e.target.rfp;
+            var pos = e.target.getLatLng();
+            updateSyncPositions(rfp, [pos.lat, pos.lng]);
+            if (e.type !== 'move')
+                connection.invoke('@nameof(MapHub.UpdatePosition)', rfp.Id, pos.lat, pos.lng, rfp.Level);
+        }
+
+        function toggleNames() {
+            for (var i = 0; i < markers.length; i++) {
+                var marker = markers[i];
+                var tooltip = marker.getTooltip();
+                var content = tooltip._content;
+                var options = { direction: 'bottom', offset: [0, 24], permanent: this.checked };
+                marker.unbindTooltip();
+                marker.bindTooltip(content, options);
+            }
+        }
+
+        function filterSync(e) {
+            var syncValue = 0 - parseInt(e.target.value);
+            $('#sliderValue').html(e.target.value);
+            for (var i = 0; i < syncs.length; i++) {
+                var sync = syncs[i];
+                var line = sync.line;
+                var from = getRfp(sync.From);
+                var to = getRfp(sync.To);
+                line.setStyle({ stroke: sync.Rssi > syncValue && to.IsPositioned && from.IsPositioned });
+            }
+        }
+
+        function updateSyncPositions(rfp, latlng) {
+            var syncs = getSyncs(rfp.Id);
+            for (var i = 0; i < syncs.length; i++) {
+                var path = syncs[i].line.getPath();
+                if (syncs[i].From == rfp.Id) {
+                    path[3] = getControlPoint(latlng, path[4]);
+                    path[1] = latlng;
+                } else {
+                    path[3] = getControlPoint(path[1], latlng);
+                    path[4] = latlng;
+                }
+                syncs[i].line.setPath(path);
+            }
+        }
+
+        function updateRfpPosition(id, lat, lng, level, isPositioned) {
+            var marker = getMarker(id);
+            marker.rfp.IsPositioned = isPositioned;
+            marker.rfp.Latitude = lat;
+            marker.rfp.Longitude = lng;
+            marker.setLatLng([lat, lng]);
+            if (level != null) {
+                marker.rfp.Level = level;
+            }
+            if (isPositioned) {
+                var syncs = getSyncs(id);
+                marker.setZIndexOffset(0);
+                var layer = getLevel(marker.rfp.Level);
+                if (!layer.layer.hasLayer(marker)) {
+                    for (var i = 0; i < levels.length; i++) {
+                        marker.removeFrom(levels[i].layer);
+                    }
+                    marker.removeFrom(unpositioned);
+                    marker.addTo(layer.layer);
+                }
+                for (var i = 0; i < syncs.length; i++) {
+                    var sync = syncs[i];
+                    var from = getRfp(sync.From);
+                    var to = getRfp(sync.To);
+                    var dashed = null;
+                    var level = getLevel(from.Level);
+                    if (from.Level != to.Level) {
+                        dashed = '10';
+                    }
+                    sync.line.setStyle({ dashArray: dashed });
+                    for (var j = 0; j < levels.length; j++) {
+                        sync.line.removeFrom(levels[j].layer);
+                    }
+                    sync.line.addTo(level.layer);
+                }
+            } else {
+                marker.setZIndexOffset(rfps.length);
+                if (!unpositioned.hasLayer(marker)) {
+                    for (var i = 0; i < levels.length; i++) {
+                        marker.removeFrom(levels[i].layer);
+                    }
+                    marker.removeFrom(unpositioned);
+                    marker.addTo(unpositioned);
+                    marker.once('dragstart', positionRfp);
+                }
+            }
+            updateSyncPositions(marker.rfp, [lat, lng]);
+            $("#signal").trigger("input");
+        }
+
+        function updateRfpState(id, state) {
+            var rfp = getRfp(id);
+            if (rfp.State == '@nameof(RFPSyncStateType.Synced)' && state != '@nameof(RFPSyncStateType.Synced)') {
+                //remove all affected sync relations
+                removeSyncs(id);
+            }
+            rfp.State = state;
+            var icon = getIcon(rfp);
+            var marker = getMarker(id);
+            marker.setIcon(icon);
+        }
+
+        function updateSyncs(rfpId, updates) {
+            for (var i = 0; i < updates.length; i++) {
+                var update = updates[i];
+                var sync = getSync(update.from, update.to);
+                if (sync == null) {
+                    sync = {
+                        From: update.from,
+                        To: update.to
+                    }
+                    syncs.push(sync);
+                }
+                sync.Offset = update.offset;
+                sync.Rssi = update.rssi;
+                var from = getRfp(sync.From);
+                var to = getRfp(sync.To);
+                addSyncLine(sync, from, to);
+            }
+            $("#signal").trigger("input");
+        }
+
+        function removeSyncs(rfpId) {
+            for (var i = 0; i < syncs.length; i++) {
+                if (syncs[i].From == rfpId || syncs[i].To == rfpId) {
+                    syncs[i].line.remove();
+                    syncs.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function updatePosition(e) {
+            var position = e.target.getLatLng();
+            var data = {
+                Id: e.target.rfp.Id,
+                Latitude: position.lat,
+                Longitude: position.lng,
+                Level: currentLevel
+            };
+            $.ajax({
+                url: '@Url.Page(null, "Position")',
+                type: 'post',
+                data: JSON.stringify(data),
+                headers: { RequestVerificationToken: '@GetAntiForgeryToken()' },
+                contentType: 'application/json'
+            });
+        }
+
+        function positionRfp(e) {
+            var marker = e.target;
+            var rfp = marker.rfp;
+            var level = getLevel(rfp.Level);
+            marker.addTo(level.layer);
+            unpositioned.eachLayer(m => {
+                if (m === marker) return;
+                m.remove();
+            });
+            marker.once('dragend',
+                e => {
+                    e.target.removeFrom(unpositioned);
+                    e.target.addTo(level.layer);
+                    e.target.rfp.IsPositioned = true;
+                    var syncs = getSyncs(e.target.rfp.Id);
+                    for (var i = 0; i < syncs.length; i++) {
+                        if (syncs[i].From != e.target.rfp.Id)
+                            continue;
+                        syncs[i].line.remove();
+                        syncs[i].line.addTo(level.layer);
+                    }
+                    $("#signal").trigger("input");
+                    unpositioned.removeFrom(map);
+                    if (unpositioned.getLayers().length === 0) {
+                        level.layer.addTo(map);
+                    } else {
+                        unpositioned.addTo(map);
+                    }
+                });
+        }
+
+        function layerChanged(e) {
+            if (e.layer == unpositioned)
+                return;
+            var div = document.createElement("div");
+            div.innerHTML = e.name;
+            currentLevel = div.innerText;
+        }
+
+        function rfpPopupOpen(e) {
+            var popup = e.popup;
+            var content = popup.getContent();
+            var rfp = e.target.rfp;
+            content.querySelector('#rfp-name').innerText = rfp.Name;
+            content.querySelector('#rfp-type').innerText = rfp.Type;
+            content.querySelector('#rfp-state').innerText = rfp.State;
+            content.querySelector('#rfp-mac').innerText = rfp.Mac;
+            content.querySelector('#rfp-ip').innerText = rfp.Ip;
+            popup.setContent(content);
+        }
+
+        function syncPopupOpen(e) {
+            var popup = e.popup;
+            var content = popup.getContent();
+            var sync = e.target.sync;
+            content.querySelector('#sync-offset').innerText = sync.Offset;
+            content.querySelector('#sync-rssi').innerText = sync.Rssi;
+            popup.setContent(content);
+        }
+    </script>
+}
+<div class="row">
+    <div class="col">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="allow-drag" />
+            <label class="form-check-label" for="allow-drag">Enable positioning</label>
+        </div>
+    </div>
+    <div class="col">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="show-names" />
+            <label class="form-check-label" for="show-names">Show Names</label>
+        </div>
+    </div>
+    <div class="col">
+        <div>
+            <input type="range" id="signal" name="signal" min="25" max="115" value="70">
+            <label for="signal">Signal &lt; -<span id="sliderValue">70</span> dBm</label>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div id="syncmap"></div>
+    </div>
+</div>
+<div class="d-none">
+    <div id="rfp-popup">
+        <h5 id="rfp-name"></h5>
+        <ul class="list-unstyled">
+            <li>HW-Type: <span id="rfp-type"></span></li>
+            <li>State: <span id="rfp-state"></span></li>
+            <li>MAC: <span id="rfp-mac"></span></li>
+            <li>IP: <span id="rfp-ip"></span></li>
+        </ul>
+    </div>
+    <div id="sync-popup">
+        <ul class="list-unstyled">
+            <li>Offset: <span id="sync-offset"></span> ns</li>
+            <li>RSSI: <span id="sync-rssi"></span> dBm</li>
+        </ul>
+    </div>
+</div>
+

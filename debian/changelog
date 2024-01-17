@@ -1,0 +1,18 @@
+epmgr (0.0.3+bullseye) bullseye-staging; urgency=medium
+
+  * Bump B-D to dotnet-sdk-6.0
+  * Build for bullseye
+
+ -- Jakob Haufe <sur5r@sur5r.net>  Fri, 26 Nov 2021 21:24:19 +0000
+
+epmgr (0.0.2) buster; urgency=medium
+
+  * update to net50.
+
+ -- The Eventphone Team <poc@eventphone.de>  Fri, 15 Jan 2021 20:16:00 +0100
+
+epmgr (0.0.1) buster; urgency=medium
+
+  * Initial Release.
+
+ -- The Eventphone Team <poc@eventphone.de>  Wed, 13 Jan 2021 20:10:21 +0100

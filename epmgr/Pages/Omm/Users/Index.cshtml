@@ -1,0 +1,474 @@
+﻿@page "{id}/{handler?}"
+@model epmgr.Pages.Omm.Users.IndexModel
+
+@{
+    ViewBag.Title = "PPUser " + Model.UserModel.Uid;
+}
+<h2>OMM User Profile</h2>
+<table id="table" class="table table-striped">
+    <tbody>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Uid)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Uid)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.TimeStamp)
+            </th>
+            <td>
+                @(DateTimeOffset.FromUnixTimeSeconds(Model.UserModel.TimeStamp.GetValueOrDefault()).ToLocalTime().ToString())
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.RelType)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.RelType)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Ppn)
+            </th>
+            <td>
+                <a asp-page="../Devices/Index" asp-route-id="@Model.UserModel.Ppn">
+                    @Html.DisplayFor(model => model.UserModel.Ppn)
+                </a>
+</td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Name)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Name)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Num)
+            </th>
+            <td>
+                <a asp-Page="/Yate/Dect" asp-route-id="@Model.UserModel.Num">
+                    @Html.DisplayFor(model => model.UserModel.Num)
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Hierarchy1)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Hierarchy1)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Hierarchy2)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Hierarchy2)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.AddId)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.AddId)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Pin)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Pin)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SipAuthId)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SipAuthId)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SipPw)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SipPw)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SosNum)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SosNum)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.VoiceboxNum)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.VoiceboxNum)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ManDownNum)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ManDownNum)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ForwardState)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ForwardState)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ForwardTime)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ForwardTime)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ForwardDest)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ForwardDest)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Lang)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Lang)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.HoldRingBackTime)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.HoldRingBackTime)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.AutoAnswer)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.AutoAnswer)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.WarningTone)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.WarningTone)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.AllowBargeIn)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.AllowBargeIn)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.CallWaitingDisabled)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.CallWaitingDisabled)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.External)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.External)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.TrackingActive)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.TrackingActive)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Locatable)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Locatable)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.BTlocatable)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.BTlocatable)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.BTsensitivity)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.BTsensitivity)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.LocRight)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.LocRight)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.MsgRight)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.MsgRight)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SendVcardRight)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SendVcardRight)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.RecvVcardRight)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.RecvVcardRight)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.KeepLocalPB)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.KeepLocalPB)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.Vip)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.Vip)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SipRegisterCheck)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SipRegisterCheck)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.AllowVideoStream)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.AllowVideoStream)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ConferenceServerType)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ConferenceServerType)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ConferenceServerURI)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ConferenceServerURI)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.MonitoringMode)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.MonitoringMode)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.CUS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.CUS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.HAS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.HAS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.HSS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.HSS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.HRS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.HRS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.HCS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.HCS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SRS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SRS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SCS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SCS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.CDS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.CDS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.HBS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.HBS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.BTS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.BTS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.SWS)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.SWS)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.CredentialPw)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.CredentialPw)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.ConfigurationDataLoaded)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.ConfigurationDataLoaded)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.PpData)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.PpData)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.PpProfileId)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.PpProfileId)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.FixedSipPort)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.FixedSipPort)
+            </td>
+        </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.UserModel.CalculatedSipPort)
+            </th>
+            <td>
+                @Html.DisplayFor(model => model.UserModel.CalculatedSipPort)
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div>
+    <a asp-page="../Users">Back to List</a>
+</div>

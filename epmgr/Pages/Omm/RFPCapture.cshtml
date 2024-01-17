@@ -1,0 +1,53 @@
+﻿@page "{handler?}"
+@model epmgr.Pages.Omm.RFPCaptureModel
+
+@{
+    ViewBag.Title = "OMM RFPs";
+}
+
+<h2>OMM Captured RFPs</h2>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">MAC-Address</th>
+        <th scope="col">IP-Address</th>
+        <th scope="col">RFP Type</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (Model.Rfps != null)
+    {
+        foreach (var rfp in Model.Rfps)
+        {
+            <tr>
+                <td>@rfp.EthAddr</td>
+                <td>
+                    @if (rfp.IpAddr != "0.0.0.0")
+                    {
+                        @rfp.IpAddr
+                    }
+                </td>
+                <td>@rfp.HwType</td>
+                <td>
+                    <div class="btn-group">
+                        <form asp-page-handler="Create" asp-route-mac="@rfp.EthAddr" method="post">
+                            <button type="submit" class="btn btn-primary btn-group" role="button">Add</button>
+                        </form>
+                        &nbsp;
+                        <form asp-page-handler="Delete" asp-route-mac="@rfp.EthAddr" method="post">
+                            <button type="submit" class="btn btn-danger btn-group" role="button">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="4">There are currently no captured RFPs.</td>
+        </tr>
+    }
+    </tbody>
+</table>

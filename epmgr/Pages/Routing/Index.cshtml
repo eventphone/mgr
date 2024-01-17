@@ -1,0 +1,86 @@
+﻿@page "{id}"
+@using epmgr.Data.ywsd
+@model epmgr.Pages.Routing.IndexModel
+@{
+    ViewData["Title"] = $"Extension {Model.Extension.Number}";
+}
+
+<h1>@Model.Extension.Number <a asp-page="Edit" asp-route-id="@Model.Extension.Id" class="btn btn-primary" role="button"><span class="oi oi-pencil"></span></a></h1>
+<table class="table table-hover">
+    <tbody>
+        <tr>
+            <td>Name</td>
+            <td>@Model.Extension.Name</td>
+        </tr>
+        <tr>
+            <td>Short Name</td>
+            <td>@Model.Extension.ShortName</td>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>@Model.Extension.Type</td>
+        </tr>
+        <tr>
+            <td>Language</td>
+            <td>@Model.Extension.Language</td>
+        </tr>
+        <tr>
+            <td>Ringback</td>
+            <td>@Model.Extension.Ringback</td>
+        </tr>
+        <tr>
+            <td>Yate</td>
+            <td>@Model.Extension.Yate.Hostname</td>
+        </tr>
+        <tr>
+            <td>ForwardingMode</td>
+            <td>@Model.Extension.ForwardingMode</td>
+        </tr>
+        @if (Model.Extension.ForwardingMode != ForwardingMode.Disabled)
+        {
+            <tr>
+                <td>ForwardingDelay</td>
+                <td>@Model.Extension.ForwardingDelay</td>
+            </tr>
+            <tr>
+                <td>ForwardingExtension</td>
+                <td><a asp-route-id="@Model.Extension.ForwardingExtension.Id">@Model.Extension.ForwardingExtension.Number</a></td>
+            </tr>
+        }
+        @if (!String.IsNullOrEmpty(Model.Extension.OutgoingName) || !String.IsNullOrEmpty(Model.Extension.OutgoingNumber))
+        {
+            <tr>
+                <td>OutgoingName</td>
+                <td>@Model.Extension.OutgoingName</td>
+            </tr>
+            <tr>
+                <td>OutgoingNumber</td>
+                <td>@Model.Extension.OutgoingNumber</td>
+            </tr>
+        }
+        <tr>
+            <td>Dialout allowed</td>
+            <td>@Model.Extension.IsDialoutAllowed</td>
+        </tr>
+    </tbody>
+</table>
+<h2>Fork Ranks <a asp-page="/Routing/ForkRank/Edit" asp-route-extensionid="@Model.Extension.Id" class="btn btn-primary"><span class="oi oi-plus"></span></a></h2>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">Index</th>
+        <th scope="col">Mode</th>
+        <th scope="col">Delay</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var forkRank in Model.Extension.ForkRanks)
+    {
+        <tr>
+            <td><a asp-page="/Routing/ForkRank" asp-route-id="@forkRank.Id">@forkRank.Index</a></td>
+            <td>@forkRank.Mode</td>
+            <td>@forkRank.Delay</td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -1,0 +1,16 @@
+[Unit]
+Description=Eventphone Manager (mgr)
+
+[Service]
+WorkingDirectory=/opt/epmgr
+ExecStart=/opt/epmgr/epmgr
+Restart=always
+# Restart service after 10 seconds if dotnet service crashes
+RestartSec=10
+SyslogIdentifier=mgr
+User=mgr
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment="DOTNET_CLI_TELEMETRY_OPTOUT=1"
+
+[Install]
+WantedBy=multi-user.target

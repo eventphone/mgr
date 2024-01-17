@@ -1,0 +1,291 @@
+﻿@page
+@using Newtonsoft.Json
+@model epmgr.Pages.Routing.TreeModel
+@{
+    ViewData["Title"] = "Tree";
+}
+
+@section script
+{
+    <script type="text/javascript" src="~/js/vis-network.min.js"></script>
+    <script type="text/javascript">
+        var routing = @Html.Raw(JsonConvert.SerializeObject(Model.Routing));
+        if (routing != null) {
+            var tree = routing.routing_tree;
+            var result = routing.main_routing_result;
+            var cached = routing.all_routing_results;
+            var network;
+            var nodes;
+            var edges;
+            init();
+        }
+
+        function init() {
+            // create an array with nodes
+            nodes = new vis.DataSet();
+
+            // create an array with edges
+            edges = new vis.DataSet();
+
+            nodes.add({
+                id: 0,
+                label: '@Model.Caller',
+                shape: 'icon',
+                icon: {
+                    face: 'Icons',
+                    code: '\ue0a6',
+                    size: 20,
+                    color: '#FF5100'
+                },
+                level: 0
+            });
+            addExtension(tree, 1);
+            edges.add({
+                 from: 0,
+                 to: tree.tree_identifier,
+                 color: {
+                     color:'#FF5100',
+                     highlight:'#FF5100'
+                 },
+                arrows: {
+                    middle: {
+                        enabled:true
+                    }
+                }
+            });
+            addCached(cached);
+            addResult(result);
+
+            // create a network
+            let container = document.getElementById("visjs");
+            let data = {
+                nodes: nodes,
+                edges: edges
+            };
+            let options = {
+                autoResize: true,
+                height: '100%',
+                width: '100%',
+                layout: {
+                    hierarchical: {
+                        direction: 'UD'
+                    }
+                },
+                interaction: {
+                }
+            };
+            network = new vis.Network(container, data, options);
+            network.on('click', openModal);
+        }
+
+        function openModal(e) {
+            if (e) {
+                if (e.nodes) {
+                    if (e.nodes.length === 1) {
+                        let id = e.nodes[0];
+                        let node = nodes.get(id);
+                        if (node) {
+                            if (node.popup) {
+                                renderPopup(node.popup);
+                                $('#routingModal').modal();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function renderPopup(data) {
+            let popup = document.querySelector('#routingModal .modal-body');
+
+            let content = renderTarget(data.target, true);
+            if (data.fork_targets) {
+                data.fork_targets.forEach(t => {
+                    content += renderTarget(t);
+                });
+            }
+            popup.innerHTML = content;
+        }
+
+        function renderTarget(target, primary=false) {
+            let result = '<table class="table table-hover">' +
+                `<thead data-toggle="collapse" data-target="#${target.target}">` +
+                `<tr class="${primary?'table-primary':'table-secondary'}"><th scope="col" colspan="2">${target.target}</th></tr>` +
+                '</thead>' +
+                `<tbody id="${target.target}" class="collapse">`;
+            for (let p in target.parameters) {
+                if (target.parameters.hasOwnProperty(p)) {
+                    result += `<tr><td>${p}</td><td>${target.parameters[p]}</td></tr>`;
+                }
+            }
+            return result +
+                '</tbody></table>';
+        }
+
+        function addExtension(extension, level) {
+            let tooltip = '<table>' +
+                `<tr><th scope="row">Name</th><td>${extension.name}</td></tr>` +
+                `<tr><th scope="row">Type</th><td>${extension.type}</td></tr>` +
+                `<tr><th scope="row">Yate ID</th><td>${extension.yate_id}</td></tr>` +
+                '</table>';
+            let icon = '\ue0a5';
+            if (extension.type === 'Type.GROUP')
+                icon = '\ue0a4';
+            else if (extension.type === 'Type.EXTERNAL')
+                icon = '\ue064';
+            nodes.add({
+                id: extension.tree_identifier,
+                label: '\n' + extension.extension + '\n' + extension.name,
+                extension: extension,
+                title: tooltip,
+                shape: 'icon',
+                icon: {
+                    face: 'Icons',
+                    code: icon,
+                    size: 20
+                },
+                level: level
+            });
+            if (extension.fork_ranks) {
+                extension.fork_ranks.forEach(f => addForkRank(extension.tree_identifier, f, level + 1));
+            }
+            if (extension.forwarding_extension) {
+                addExtension(extension.forwarding_extension, level + 1);
+                tooltip = '<table>' +
+                    `<tr><th scope="row">Delay</th><td>${extension.forwarding_delay}</td></tr>` +
+                    `<tr><th scope="row">Mode</th><td>${extension.forwarding_mode}</td></tr>` +
+                    '</table>';
+                edges.add({
+                    from: extension.tree_identifier,
+                    to: extension.forwarding_extension.tree_identifier,
+                    title: tooltip,
+                    color: 'black',
+                    arrows: {
+                        to: { enabled: true },
+                        middle: { enabled: true }
+                    },
+                    dashes: extension.forwarding_mode === 'ForwardingMode.DISABLED'
+                });
+            }
+            if (extension.logs) {
+                extension.logs.forEach(l => addLog(l));
+            }
+        }
+
+        function addForkRank(parentId, forkRank, level) {
+            nodes.add({
+                id: forkRank.tree_identifier,
+                label: `${forkRank.index} (${forkRank.mode})`,
+                fork_rank: forkRank,
+                shape: 'box',
+                level: level,
+                title: `<table><tr><th scope="row">Delay</th><td>${forkRank.delay}</td></table>`
+            });
+            if (parentId) {
+                edges.add({ from: parentId, to: forkRank.tree_identifier });
+            }
+            if (forkRank.members) {
+                forkRank.members.forEach(m => addForkRankMember(forkRank.tree_identifier, m, level + 1));
+            }
+            if (forkRank.logs) {
+                forkRank.logs.forEach(l => addLog(l));
+            }
+        }
+
+        function addForkRankMember(parentId, member, level) {
+            addExtension(member.extension, level);
+            edges.add({
+                from: parentId,
+                to: member.extension.tree_identifier,
+                fork_rank_member: member,
+                title: `<table><tr><th scope="row">Type</th><td>${member.type}</td></tr></table>`,
+                dashes: !member.active
+            });
+        }
+
+        function addLog(log) {
+            let node = nodes.get(log.related_node);
+            if (node) {
+                node.title =
+                    `<div><div class="alert ${log.level}">${$("<div>").text(log.msg).html()}</div>${node.title}</div>`;
+                nodes.update(node);
+            }
+            let edge = edges.get(log.related_node);
+            if (edge) {
+                edge.title += `<span class="${log.level}">${log.msg}</span>`;
+            }
+        }
+
+        function addCached(cached) {
+            for (let id in cached) {
+                if (cached.hasOwnProperty(id)) {
+                    let target = cached[id];
+                    let node = nodes.get(id);
+                    if (node) {
+                        node.popup = target;
+                        node.icon.color = '#00BFFF';
+                        nodes.update(node);
+                    }
+                }
+            }
+        }
+
+        function addResult(result) {
+            let id = tree.tree_identifier;
+            let node = nodes.get(id);
+            if (node) {
+                node.popup = result;
+                node.icon.color = '#9999FF';
+                nodes.update(node);
+            }
+        }
+    </script>
+}
+<h1>Routing Tree</h1>
+<form class="form-inline" method="get">
+    <label class="sr-only" asp-for="Yate">Yate</label>
+    <select asp-for="Yate" class="form-control mb-2 mr-sm-2">
+        <option value="@Data.ywsd.Yate.AppId">@Data.ywsd.Yate.AppId</option>
+        <option value="@Data.ywsd.Yate.DectId">@Data.ywsd.Yate.DectId</option>
+        <option value="@Data.ywsd.Yate.GsmId">@Data.ywsd.Yate.GsmId</option>
+        <option value="@Data.ywsd.Yate.PremiumId">@Data.ywsd.Yate.PremiumId</option>
+        <option value="@Data.ywsd.Yate.SipId">@Data.ywsd.Yate.SipId</option>
+    </select>
+    <label class="sr-only" asp-for="Caller">Caller</label>
+    <input type="text" class="form-control mb-2 mr-sm-2" asp-for="Caller" placeholder="caller">
+
+    <label class="sr-only" asp-for="Called">Called</label>
+    <input type="text" class="form-control mb-2 mr-sm-2" asp-for="Called" placeholder="called">
+
+    <button type="submit" class="btn btn-primary mb-2">Submit</button>
+</form>
+@if (!(Model.Routing is null))
+{
+    <h2>@Model.Routing.Status</h2>
+    @if (!String.IsNullOrEmpty(Model.Routing.Details))
+    {
+        <div class="alert alert-warning" role="alert">
+            <span style="white-space: pre;font-family: monospace">@Model.Routing.Details</span>
+        </div>
+    }
+    <div class="row">
+        <div class="col">
+            <div id="visjs"></div>
+        </div>
+    </div>
+    <div class="modal fade" id="routingModal" tabindex="-1" role="dialog" aria-labelledby="routingModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="routingModalTitle">Yate Routing</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
+}

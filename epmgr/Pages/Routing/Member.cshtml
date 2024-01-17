@@ -1,0 +1,51 @@
+﻿@page "{forkrankid}/{extensionid?}/{handler?}"
+@using epmgr.Data.ywsd
+@model epmgr.Pages.Routing.MemberModel
+@{
+    ViewData["Title"] = "Member";
+}
+
+@if (Model.ExtensionId is null)
+{
+    <h1>Add Member for <a asp-page="Index" asp-route-id="@Model.Extension.Id">@Model.Extension.Number</a> ForkRank <a asp-page="ForkRank" asp-route-id="@Model.ForkRankId">@Model.Member.ForkRank.Index</a></h1>
+}
+else
+{
+    <h1>Edit Member <a asp-page="Index" asp-route-id="@Model.ExtensionId">@Model.Member.Extension?.Number</a> for <a asp-page="Index" asp-route-id="@Model.Extension.Id">@Model.Extension.Number</a> ForkRank <a asp-page="ForkRank" asp-route-id="@Model.ForkRankId">@Model.Member.ForkRank.Index</a></h1>
+}
+@if (!String.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">
+        @Model.Error
+    </div>
+}
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Member.Extension.Number"></label>
+        @if (Model.ExtensionId is null)
+        {
+            <input class="form-control" asp-for="Member.Extension.Number" />
+        }
+        else
+        {
+            <input type="hidden" asp-for="Member.Extension.Number"/>
+            <input class="form-control" asp-for="Member.Extension.Number" disabled="disabled"/>
+        }
+        <span asp-validation-for="Member.Extension.Number"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Member.Type"></label>
+        <select asp-for="Member.Type" class="form-control">
+            <option value="@ForkRankMemberType.Default">Default</option>
+            <option value="@ForkRankMemberType.Auxiliary">Auxiliary</option>
+            <option value="@ForkRankMemberType.Persistent">Persistent</option>
+        </select>
+        <span asp-validation-for="Member.Type"></span>
+    </div>
+    <div class="form-group form-check">
+        <input class="form-check-input" type="checkbox" asp-for="Member.IsActive">
+        <label class="form-check-label" asp-for="Member.IsActive"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button asp-page-handler="delete" type="submit" class="btn btn-danger">Delete</button>
+</form>

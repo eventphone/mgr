@@ -1,0 +1,41 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "GSM-Users";
+}
+
+<h2>GSM User Profiles<a class="btn btn-primary" asp-page="Create" role="button">Add</a></h2>
+<form method="get">
+    <div class="input-group">
+        @foreach (var param in Model.Parameters.Where(x => x.Key != "q").Where(x => x.Value != null))
+        {
+            <input hidden name="@param.Key" value="@param.Value" />
+        }
+        <input type="text" class="form-control" placeholder="Search" name="q" value="@Model.Search">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit"><span class="oi oi-magnifying-glass"></span></button>
+        </div>
+    </div>
+</form>
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">HLR Id</th>
+        <th scope="col">IMSI</th>
+        <th scope="col">Number</th>
+        <th scope="col">Last LU</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var subscriber in Model.Subscribers)
+    {
+        <tr>
+            <td>@subscriber.ID</td>
+            <td>@subscriber.IMSI</td>
+            <td><a asp-Page="/Yate/Index" asp-route-type="gsm" asp-route-id="@subscriber.Number">@subscriber.Number</a></td>
+            <td>@subscriber.LastSeen</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<partial name="Shared/_Pagination"/>

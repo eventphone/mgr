@@ -1,0 +1,36 @@
+﻿@model System.Tuple<string,string>
+
+<button type="button" class="btn btn-danger btn-group" data-toggle="modal" data-target="#callModal_@Model.Item1">Dial</button>
+<div class="modal fade" id="callModal_@Model.Item1" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel">Dial</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-route-id="@Model.Item1">
+                <input type="hidden" name="q" value="@Model.Item2"/>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="caller">Caller</label>
+                        <input type="text" class="form-control" id="caller" placeholder="Caller Extension" name="caller">
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Caller Name" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="file">File</label>
+                        <input type="text" class="form-control" id="file" placeholder="WAV file" name="file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-group btn-danger" role="button">Call</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+﻿@page "{id?}/{handler?}"
+@model epmgr.Pages.Desaster.EditModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@if(Model.Id is null)
+{
+    <h1>Add desaster</h1>
+}
+else
+{
+    <h1>Edit @Model.Desaster.Name</h1>
+}
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Desaster.Name"></label>
+        <input class="form-control" asp-for="Desaster.Name" />
+        <span asp-validation-for="Desaster.Name"></span>
+    </div>
+    @if(Model.Id is not null)
+    {
+        <div class="form-group">
+            <label asp-for="Desaster.Pin"></label>
+            <input class="form-control" readonly="readonly" asp-for="Desaster.Pin" />
+            <div class="input-group-append">
+                <button class="btn btn-danger" type="submit" asp-page-handler="regenerate" >Regenerate</button>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <label asp-for="Desaster.Announcement"></label>
+        <input class="form-control" asp-for="Desaster.Announcement" />
+        <span asp-validation-for="Desaster.Announcement"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Desaster.Target"></label>
+        <input class="form-control" asp-for="Desaster.Target" />
+        <span asp-validation-for="Desaster.Target"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button asp-page-handler="delete" type="submit" class="btn btn-danger">Delete</button>
+</form>

@@ -1,0 +1,134 @@
+﻿@page
+@using mitelapi.Messages
+@using mitelapi.Types
+@model epmgr.Pages.Omm.DevicesModel
+
+@{
+    ViewBag.Title = "OMM-Devices";
+}
+
+<h2>OMM Devices</h2>
+<form method="get">
+    <div class="input-group">
+        <input name="q" class="form-control" placeholder="Search" value="@Model.Query"/>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit"><span class="oi oi-magnifying-glass"></span></button>
+        </div>
+    </div>
+</form>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">OMM ppn</th>
+            <th scope="col">IPEI</th>
+            <th scope="col">Hardware</th>
+            <th scope="col">Firmware</th>
+            <th scope="col">Encryption</th>
+            <th scope="col">User Relation</th>
+            <th scope="col">Subscribed</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var device in Model.Devices)
+        {
+            GetPPStateResp state = Model.States.FirstOrDefault(x => x.Ppn == device.Ppn);
+            <tr>
+                <td>
+                    @device.Ppn
+                </td>
+                <td>@device.Ipei</td>
+                <td>@device.HwType</td>
+                @if (state != null)
+                {
+                    <td>@state.SwVersion</td>
+                }
+                else
+                {
+                    <td></td>
+                }
+            <td>
+                @if (device.Encrypt == true)
+                {<span class="oi oi-lock-locked" title="Encrypted"></span> }
+                else
+                { <span class="oi oi-lock-unlocked" title="Unencrypted"></span>}
+            </td>
+            <td>
+                @if (device.RelType == mitelapi.Types.PPRelTypeType.Unbound)
+                {
+                    <span class="oi oi-circle-x" title="Unbound"></span>
+                }
+                else if (device.RelType == mitelapi.Types.PPRelTypeType.Fixed)
+                {
+                    <span class="oi oi-circle-check" title="Fixed"></span>
+                    <a asp-page="/Omm/Users/Index" asp-route-id="@device.Uid">@device.Uid</a>
+                }
+                else
+                {
+                    <span class="oi oi-play-circle" title="Dynamic"></span>
+                    <a asp-page="/Omm/Users/Index" asp-route-id="@device.Uid">@device.Uid</a>
+                }
+            </td>
+            <td>
+                @if (device.SubscriptionState == mitelapi.Types.DECTSubscriptionStateType.Yes)
+                {
+                    <span class="oi oi-link-intact" title="Subscribed"></span>
+                }
+                else if (device.SubscriptionState == mitelapi.Types.DECTSubscriptionStateType.Unconfirmed)
+                {
+                    <span class="oi oi-lightbulb" title="Unconfirmed"></span>
+                }
+                else
+                {
+                    <span class="oi oi-link-broken" title="Not subscribed"></span>
+                }
+                @if (state != null && state.CallState != PPUserCallStateType.None)
+                {
+                    @state.CallState
+                }
+            </td>
+            <td>
+                <div class="btn-group">
+                    <a asp-page="Devices/Index" asp-route-id="@device.Ppn" class="btn btn-info btn-group" role="button">Details</a>&nbsp;
+
+                    <button type="button" class="btn btn-danger btn-group" data-toggle="modal" data-target="#deleteModal_@device.Ppn">Delete</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="deleteModal_@device.Ppn" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="ModalLabel">Caution - Deletion could be fatal</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Deleting a PP could possibly do the following:
+                                    <ul>
+                                        <li>disrupt running calls</li>
+                                        <li>drop infos like Name, Location</li>
+                                        <li>will delete the PP</li>
+                                    </ul>
+                                    <b>You should know what you are doing when deleting a PP!</b>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                    <form asp-page="Devices/Index" asp-page-handler="Delete" asp-route-id="@device.Ppn">
+                                        <button type="submit" class="btn btn-group btn-danger" role="button">Delete anyways</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (device.Uid == 0)
+                    {
+                        <form asp-page="Devices/Index" asp-page-handler="AddTempProfile" asp-route-id="@device.Ppn" method="post">
+                            <button type="submit" class="btn btn-success btn-group" role="button">Add Profile</button>
+                        </form>
+                    }
+                </div>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

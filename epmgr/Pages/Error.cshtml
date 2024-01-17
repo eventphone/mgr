@@ -1,0 +1,18 @@
+﻿@page "{statusCode}"
+@model ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<h1 class="text-danger">@Model.Message</h1>
+<audio autoplay loop>
+    <source src="~/audio/VC_SIT.ogg" type="audio/ogg"/>
+    <source src="~/audio/VC_SIT.opus" type="audio/ogg; codecs=opus"/>
+    <source src="~/audio/VC_SIT.aac" type="audio/aac"/>
+</audio>
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

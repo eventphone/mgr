@@ -1,0 +1,65 @@
+﻿@page
+@model epmgr.Pages.Omm.UsersModel
+
+@{
+    ViewBag.Title = "OMM-Users";
+}
+
+<h2>OMM User Profiles</h2>
+<form method="get">
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search" name="q" value="@Model.Query">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit"><span class="oi oi-magnifying-glass"></span></button>
+        </div>
+    </div>
+</form>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">OMM uid</th>
+            <th scope="col">Number</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description1</th>
+            <th scope="col">Device Relation</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.Uid</td>
+                <td><a asp-Page="/Yate/Index" asp-route-id="@user.Num" asp-route-type="dect">@user.Num</a></td>
+                <td>@user.Name</td>
+                <td>@user.Hierarchy1</td>
+                <td>
+                    @if (user.RelType == mitelapi.Types.PPRelTypeType.Unbound)
+                    {
+                        <span class="oi oi-circle-x" title="Unbound"></span>
+                    }
+                    else
+                    {
+                        if (user.RelType == mitelapi.Types.PPRelTypeType.Fixed)
+                        {
+                            <span class="oi oi-circle-check" title="Fixed"></span>
+                        }
+                        else
+                        {
+                            <span class="oi oi-play-circle" title="Dynamic"></span>
+                        }
+                        <a asp-page="Devices/Index" asp-route-id="@user.Ppn">@user.Ppn</a>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a  asp-page="Users/Index" asp-route-id="@user.Uid" class="btn btn-info btn-group" role="button">Details</a>&nbsp;
+                        <form asp-page="Users/Index" asp-route-id="@user.Uid" asp-page-handler="Delete" method="post">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

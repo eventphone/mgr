@@ -1,0 +1,113 @@
+﻿@page "{id?}/{handler?}"
+@using epmgr.Data.ywsd
+@model epmgr.Pages.Routing.EditModel
+@{
+    ViewData["Title"] = "Edit";
+}
+@if (Model.Id is null)
+{
+    <h1>Add Extension</h1>
+}
+else
+{
+    <h1>Edit Extension @Model.Extension.Number</h1>
+}
+<style type="text/css">
+    div[data-chosen="Disabled"] ~ div.js-forwarding-hide-disabled {
+        display: none;
+    }
+    div[data-chosen="OnBusy"] ~ div.js-forwarding-hide-onbusy {
+        display: none;
+    }
+</style>
+@if (!String.IsNullOrEmpty(Model.Error))
+{
+    <div class="alert alert-danger">
+        @Model.Error
+    </div>
+}
+<form method="post" asp-route-id="@Model.Id">
+    <div class="form-group">
+        <label asp-for="Extension.Number"></label>
+        <input class="form-control" asp-for="Extension.Number" />
+        <span asp-validation-for="Extension.Number"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.Name"></label>
+        <input class="form-control" asp-for="Extension.Name" />
+        <span asp-validation-for="Extension.Name"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.ShortName"></label>
+        <input class="form-control" asp-for="Extension.ShortName" />
+        <span asp-validation-for="Extension.ShortName"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.Type"></label>
+        <select asp-for="Extension.Type" class="form-control">
+            <option value="@ExtensionType.Simple">Simple</option>
+            <option value="@ExtensionType.External">External</option>
+            <option value="@ExtensionType.Group">Group</option>
+            <option value="@ExtensionType.Multiring">Multiring</option>
+            <option value="@ExtensionType.Trunk">Trunk</option>
+        </select>
+        <span asp-validation-for="Extension.Type"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.Language"></label>
+        <input class="form-control" asp-for="Extension.Language" />
+        <span asp-validation-for="Extension.Language"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.Ringback"></label>
+        <input class="form-control" asp-for="Extension.Ringback" />
+        <span asp-validation-for="Extension.Ringback"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.YateId"></label>
+        <select asp-for="Extension.YateId" class="form-control">
+            <option value="">None</option>
+            @foreach (var yate in Model.Yates)
+            {
+                <option value="@yate.Id">@yate.Guru3Identifier</option>
+            }
+        </select>
+        <span asp-validation-for="Extension.Type"></span>
+    </div>
+    <div class="form-group" data-chosen="@(Model.Extension?.ForwardingMode??ForwardingMode.Disabled)">
+        <label asp-for="Extension.ForwardingMode">Forwarding Mode</label>
+        <select asp-for="Extension.ForwardingMode" class="form-control" onchange="this.parentNode.dataset.chosen = this.value;">
+            <option value="@ForwardingMode.Disabled">Disabled</option>
+            <option value="@ForwardingMode.Enabled">Enabled</option>
+            <option value="@ForwardingMode.OnBusy">OnBusy</option>
+            <option value="@ForwardingMode.OnUnavailable">OnUnavailable</option>
+        </select>
+        <span asp-validation-for="Extension.ForwardingMode"></span>
+    </div>
+    <div class="form-group js-forwarding-hide-disabled js-forwarding-hide-onbusy">
+        <label asp-for="Extension.ForwardingDelay">Forwarding Delay</label>
+        <input class="form-control" asp-for="Extension.ForwardingDelay" />
+        <span asp-validation-for="Extension.ForwardingDelay"></span>
+    </div>
+    <div class="form-group js-forwarding-hide-disabled">
+        <label asp-for="Extension.ForwardingExtension.Number">Forwarding Number</label>
+        <input class="form-control" asp-for="Extension.ForwardingExtension.Number" />
+        <span asp-validation-for="Extension.ForwardingExtension.Number"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.OutgoingName"></label>
+        <input class="form-control" asp-for="Extension.OutgoingName" />
+        <span asp-validation-for="Extension.OutgoingName"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Extension.OutgoingNumber"></label>
+        <input class="form-control" asp-for="Extension.OutgoingNumber" />
+        <span asp-validation-for="Extension.OutgoingNumber"></span>
+    </div>
+    <div class="form-group form-check">
+        <input class="form-check-input" type="checkbox" asp-for="Extension.IsDialoutAllowed">
+        <label class="form-check-label" asp-for="Extension.IsDialoutAllowed"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button asp-page-handler="delete" type="submit" class="btn btn-danger">Delete</button>
+</form>
